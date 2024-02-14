@@ -1,16 +1,47 @@
-# This is a sample Python script.
+import sqlite3
+from contextlib import contextmanager
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+DATABASE = './college.db'
 
 
-# Press the green button in the gutter to run the script.
+@contextmanager
+def create_connection(db_file):
+    conn = sqlite3.connect(db_file)
+    yield conn
+    conn.rollback()
+    conn.close()
+
+
+def create_table(conn, create_table_sql):
+    try:
+        c = conn.cursor()
+        c.execute(create_table_sql)
+        conn.commit()
+    except sqlite3.Error as e:
+        print(e)
+
+
+def create_project_tables
+
+
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    sql_create_table_student = """
+        CREATE TABLE IF NOT EXISTS Student (
+            StudentId integer PRIMARY KEY,
+            FirstName String(30),
+            SecondName String(30),
+            GroupId integer
+        );
+    """
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    with create_connection(DATABASE) as conn:
+        if conn is not None:
+            # create_table(conn, sql_create_table_group)
+            create_table(conn, sql_create_table_student)
+            # create_table(conn, sql_create_table_teacher)
+            # create_table(conn, sql_create_table_subject)
+            # create_table(conn, sql_create_table_grade)
+        else:
+            print("Error! Cannot create the database connection.")
+
+
