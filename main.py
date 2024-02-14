@@ -1,7 +1,9 @@
 import sqlite3
 from contextlib import contextmanager
+from faker import Faker
 
 DATABASE = './college.db'
+SQL_PATH = './sql/'
 
 
 @contextmanager
@@ -12,36 +14,41 @@ def create_connection(db_file):
     conn.close()
 
 
-def create_table(conn, create_table_sql):
+def execute_script(conn, create_table_sql):
     try:
         c = conn.cursor()
-        c.execute(create_table_sql)
+        c.executescript(create_table_sql)
         conn.commit()
     except sqlite3.Error as e:
         print(e)
 
+def create_tables(conn):
+    try:
+        with open(f"{SQL_PATH}create_all_tables.sql", "r") as f:
+            sql = f.read()
+        execute_script(conn, sql)
+        return 0
+    except Exception as e:
+        print(f"Error: An exception occurred - {type(e).__name__}: {e}")
+        return -1
 
-def create_project_tables
+def generate_fake_data(conn):
+    fake = Faker()
 
+    # for table: Teachers
+    for _ in range(5):
+        first_name = fake.first_name()
+        last_name = fake.last_name()
+        insert_sql = f"INSERT INTO Teachers (FirstName, LastName) VALUES ('{first_name}', '{last_name}')"
+        execute_script(conn, insert_sql)
 
 if __name__ == '__main__':
-    sql_create_table_student = """
-        CREATE TABLE IF NOT EXISTS Student (
-            StudentId integer PRIMARY KEY,
-            FirstName String(30),
-            SecondName String(30),
-            GroupId integer
-        );
-    """
 
     with create_connection(DATABASE) as conn:
         if conn is not None:
-            # create_table(conn, sql_create_table_group)
-            create_table(conn, sql_create_table_student)
-            # create_table(conn, sql_create_table_teacher)
-            # create_table(conn, sql_create_table_subject)
-            # create_table(conn, sql_create_table_grade)
+            create_tables(conn)
+            generate_fake_data(conn)
         else:
-            print("Error! Cannot create the database connection.")
+            print("Error: Cannot create the database connection.")
 
 
