@@ -165,9 +165,9 @@ def select_all(conn, sql_path):
                 if result_sql:
                     headers = [description[0] for description in cur.description]
                     print(tabulate(result_sql, headers=headers, tablefmt='fancy_grid'))
-                    print("-"*50)
                 else:
                     print(f"No results for query from {file_name}")
+                print("-" * 50)
 
         return 0
     except Exception as e:
