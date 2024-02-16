@@ -2,7 +2,7 @@ import datetime
 import os
 import sqlite3
 from contextlib import contextmanager
-from random import randint, choice
+from random import randint
 from faker import Faker
 
 from tabulate import tabulate
