@@ -113,7 +113,7 @@ def prepare_data(teachers, subjects, groups, students, fake_dates):
         for_students.append((first_name, last_name, randint(1, NUMBER_GROUPS)))
 
     for fdate in fake_dates:
-        for_grades.append((randint(1, NUMBER_STUDENTS), randint(1, NUMBER_SUBJECTS), randint(50, 100), fdate.isoformat()))
+        for_grades.append((randint(1, NUMBER_STUDENTS), randint(1, NUMBER_SUBJECTS), randint(50, 100), fdate.strftime('%Y-%m-%d')))
 
     return for_teachers, for_subjects, for_groups, for_students, for_grades
 
@@ -166,7 +166,7 @@ def select_all(conn, sql_path):
                     headers = [description[0] for description in cur.description]
                     print(tabulate(result_sql, headers=headers, tablefmt='fancy_grid'))
                 else:
-                    print(f"No results for query from {file_name}")
+                    print(f"No results for query from 'query_{i}.sql'")
                 print("-" * 50)
 
         return 0
