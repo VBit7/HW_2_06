@@ -1,8 +1,11 @@
 import datetime
+import os
 import sqlite3
 from contextlib import contextmanager
 from random import randint, choice
 from faker import Faker
+
+from tabulate import tabulate
 
 DATABASE = './college.db'
 SQL_PATH = './sql/'
@@ -37,6 +40,15 @@ def insert_script(conn, insert_sql, data_sql):
         c = conn.cursor()
         c.executemany(insert_sql, data_sql)
         conn.commit()
+    except sqlite3.Error as e:
+        print(e)
+
+
+def select_script(conn, select_sql):
+    try:
+        c = conn.cursor()
+        c.execute(select_sql)
+        return c.fetchall(), c
     except sqlite3.Error as e:
         print(e)
 
@@ -124,6 +136,45 @@ def insert_data_to_bd(conn, teachers, subjects, groups, students, grades):
     insert_script(conn, sql_to_grades, grades)
 
 
+def select_all(conn, sql_path):
+    title_out = [
+        "5 студентів із найбільшим середнім балом з усіх предметів",
+        "Студент із найвищим середнім балом з певного предмета",
+        "Середній бал у групах з певного предмета",
+        "Середній бал на потоці (по всій таблиці оцінок)",
+        "Курси, які читає певний викладач",
+        "Список студентів у певній групі",
+        "Оцінки студентів у окремій групі з певного предмета",
+        "Середній бал, який ставить певний викладач зі своїх предметів",
+        "Список курсів, які відвідує студент",
+        "Список курсів, які певному студенту читає певний викладач",
+        "Середній бал, який певний викладач ставить певному студентові",
+        "Оцінки студентів у певній групі з певного предмета на останньому занятті",
+    ]
+    try:
+        for i in range(1, 13):
+            file_name = f"{sql_path}query_{i}.sql"
+
+            if os.path.exists(file_name):
+                print(f"{i}. {title_out[i - 1]}:")
+                with open(f"{SQL_PATH}query_{i}.sql", "r") as f:
+                    sql = f.read()
+
+                result_sql, cur = select_script(conn, sql)
+
+                if result_sql:
+                    headers = [description[0] for description in cur.description]
+                    print(tabulate(result_sql, headers=headers, tablefmt='fancy_grid'))
+                    print("-"*50)
+                else:
+                    print(f"No results for query from {file_name}")
+
+        return 0
+    except Exception as e:
+        print(f"Error: An exception occurred - {type(e).__name__}: {e}")
+        return -1
+
+
 if __name__ == '__main__':
 
     with create_connection(DATABASE) as conn:
@@ -138,6 +189,8 @@ if __name__ == '__main__':
             )
 
             insert_data_to_bd(conn, teachers, subjects, groups, students, grades)
+
+            select_all(conn, SQL_PATH)
 
         else:
             print("Error: Cannot create the database connection.")
